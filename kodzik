@@ -1,0 +1,49 @@
+import numpy as np
+import pandas
+import matplotlib.pyplot as plt
+import numpy as np
+from matplotlib.path import Path as polypath
+import pyqtgraph as pg
+
+
+def makemask(nx,ny,bothcoords):
+    meshx, meshy = np.meshgrid(np.arange(nx), np.arange(ny))
+    matx, maty = meshx.flatten(), meshy.flatten()
+    #print(meshx.shape, meshy.shape, bothcoords)
+    points = np.vstack((maty,matx)).T
+    
+    gridded = polypath(bothcoords).contains_points(points)
+    gridded = gridded.reshape((ny,nx))
+    return gridded*1
+
+anarray = np.loadtxt(open('/Users/agatasularz/Desktop/ex11.csv', "rb"), delimiter=",", skiprows=1)
+
+roiy = anarray[0::5]
+roix = anarray[1::5]
+
+bothcoords = np.transpose([roix,roiy])
+
+#pg.image(makemask(256, 256,bothcoords))
+plt.imshow(makemask(256,256,bothcoords))
+
+import imageio
+imageio.imwrite('0010011.png', makemask(256,256,bothcoords))
+
+if 0:
+
+    nx = 256
+    ny = 256
+    meshx, meshy = np.meshgrid(np.arange(nx), np.arange(ny))
+    matx, maty = meshx.flatten(), meshy.flatten()
+    print(meshx.shape, meshy.shape, bothcoords)
+    points = np.vstack((maty,matx)).T
+    
+    gridded = polypath(bothcoords).contains_points(points)
+    gridded = gridded.reshape((ny,nx))
+    
+    
+    origimage = imageio.imread('/Users/agatasularz/Desktop/Meningioma/Converted_png/01_png/00010011.png')
+smallmask = origimage > 10
+plt.imshow(smallmask*20 + makemask(256,256,bothcoords)*100)
+
+plt.imshow(origimage+ makemask(256,256,bothcoords)*100)
